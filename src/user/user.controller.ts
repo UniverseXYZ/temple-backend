@@ -17,6 +17,7 @@ import {
   Delete
 } from '@nestjs/common';
 import { AuthGuard } from 'common/guards/auth.guard';
+import { v4 as uuidv4 } from 'uuid';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import {
@@ -71,6 +72,15 @@ export class UserController {
     private storageService: StorageService,
     private statsService: StatsService
   ) {}
+
+  @Post('/auth/generate')
+  @ApiOperation({
+    description: 'Generate new user id',
+    tags: [ApiTag.User, ApiTag.Stats]
+  })
+  generateUserId() {
+    const autToken = uuidv4();
+  }
 
   @Get(':userId/watchlist')
   @ApiOperation({
