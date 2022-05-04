@@ -20,6 +20,7 @@ import { AuthGuard } from 'common/guards/auth.guard';
 import { v4 as uuidv4 } from 'uuid';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { AuthService } from './auth.service';
 import {
   ApiConsumes,
   ApiCreatedResponse,
