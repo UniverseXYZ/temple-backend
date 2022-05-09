@@ -17,7 +17,6 @@ import {
   Delete
 } from '@nestjs/common';
 import { AuthGuard } from 'common/guards/auth.guard';
-import { v4 as uuidv4 } from 'uuid';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { AuthService } from './auth.service';
@@ -71,7 +70,8 @@ export class UserController {
     private votesService: VotesService,
     private collectionsService: CollectionsService,
     private storageService: StorageService,
-    private statsService: StatsService
+    private statsService: StatsService,
+    private authService: AuthService
   ) {}
 
   @Post('/auth/generate')
@@ -80,7 +80,7 @@ export class UserController {
     tags: [ApiTag.User, ApiTag.Stats]
   })
   generateUserId() {
-    const autToken = uuidv4();
+    return this.authService.generateNewAuth();
   }
 
   @Get(':userId/watchlist')
