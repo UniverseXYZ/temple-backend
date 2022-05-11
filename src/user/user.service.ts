@@ -8,6 +8,7 @@ import { StatsService } from 'stats/stats.service';
 import { UserFollowingCollection } from 'user/dto/user-following-collection.dto';
 import { UserFollowingCollectionDeletePayload } from './dto/user-following-collection-delete-payload.dto';
 import { UserFollowingCollectionPostPayload } from './dto/user-following-collection-post-payload.dto';
+import { v4 as uuidv4 } from 'uuid';
 import { UserDto } from './dto/user.dto';
 
 @Injectable()
@@ -114,5 +115,10 @@ export class UserService {
       .doc(payload.collectionChainId + ':' + payload.collectionAddress)
       .delete();
     return {};
+  }
+
+  generateAuth() {
+    const newToken = uuidv4();
+    return newToken;
   }
 }

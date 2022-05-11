@@ -19,7 +19,6 @@ import {
 import { AuthGuard } from 'common/guards/auth.guard';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { AuthService } from './auth.service';
 import {
   ApiConsumes,
   ApiCreatedResponse,
@@ -70,17 +69,16 @@ export class UserController {
     private votesService: VotesService,
     private collectionsService: CollectionsService,
     private storageService: StorageService,
-    private statsService: StatsService,
-    private authService: AuthService
+    private statsService: StatsService
   ) {}
 
   @Post('/auth/generate')
   @ApiOperation({
-    description: 'Generate new user id',
-    tags: [ApiTag.User, ApiTag.Stats]
+    description: 'Create new User and generate user id',
+    tags: [ApiTag.User]
   })
   generateUserId() {
-    return this.authService.generateNewAuth();
+    return this.userService.generateAuth();
   }
 
   @Get(':userId/watchlist')
