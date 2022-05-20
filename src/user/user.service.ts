@@ -50,11 +50,13 @@ export class UserService {
     const token = uuidv4();
     console.log({ firestore: this.firebaseService.firestore });
 
-    await this.firebaseService.firestore.collection(AUTH_COLS).doc(token).set({
+    const docRef = this.firebaseService.firestore.collection(AUTH_COLS).doc();
+    await docRef.set({
       users: []
     });
 
     return {
+      userId: docRef.id,
       token
     };
   }
