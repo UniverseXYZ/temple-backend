@@ -10,6 +10,9 @@ import { UserFollowingCollectionDeletePayload } from './dto/user-following-colle
 import { UserFollowingCollectionPostPayload } from './dto/user-following-collection-post-payload.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { UserDto } from './dto/user.dto';
+import { getFulfilledPromiseSettledResults } from 'utils/promises';
+
+const AUTH_COLS = 'auth';
 
 @Injectable()
 export class UserService {
@@ -41,6 +44,19 @@ export class UserService {
     });
 
     return orderedStats;
+  }
+
+  async generateAuth() {
+    const token = uuidv4();
+    console.log({ firestore: this.firebaseService.firestore });
+
+    await this.firebaseService.firestore.collection(AUTH_COLS).doc(token).set({
+      users: []
+    });
+
+    return {
+      token
+    };
   }
 
   async getUserFollowingCollections(user: UserDto) {
@@ -115,10 +131,5 @@ export class UserService {
       .doc(payload.collectionChainId + ':' + payload.collectionAddress)
       .delete();
     return {};
-  }
-
-  generateAuth() {
-    const newToken = uuidv4();
-    return newToken;
   }
 }

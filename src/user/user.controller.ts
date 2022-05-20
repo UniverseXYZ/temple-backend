@@ -59,6 +59,7 @@ import { Multer } from 'multer';
 import { UserFollowingCollectionsArrayDto } from 'user/dto/user-following-collections-array.dto';
 import { UserFollowingCollectionPostPayload } from './dto/user-following-collection-post-payload.dto';
 import { UserFollowingCollectionDeletePayload } from './dto/user-following-collection-delete-payload.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('user')
 export class UserController {
@@ -77,8 +78,8 @@ export class UserController {
     description: 'Create new User and generate user id',
     tags: [ApiTag.User]
   })
-  generateUserId() {
-    return this.userService.generateAuth();
+  async generateAuth() {
+    return await this.userService.generateAuth();
   }
 
   @Get(':userId/watchlist')

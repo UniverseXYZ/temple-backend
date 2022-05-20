@@ -3,8 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthDto {
   @ApiProperty({
-    description: 'User Name',
-    enum: ChainId
+    description: 'Auth Token'
   })
   token: string;
+
+  @ApiProperty({
+    description: 'User Id'
+  })
+  userId: string;
 }

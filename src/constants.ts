@@ -96,7 +96,9 @@ export const DEFAULT_MIN_ETH = 0.0000001;
 export const DEFAULT_MAX_ETH = 1000000; // For listings
 
 export const TEMPLE_EMAIL = 'john@universe.xyz';
-export const FB_STORAGE_BUCKET = getEnvironmentVariable('FB_STORAGE_BUCKET');
+export const FB_STORAGE_BUCKET = 'temple-350517.appspot.com';
+//export const FB_STORAGE_BUCKET = getEnvironmentVariable('FB_STORAGE_BUCKET');
+
 export const FIREBASE_SERVICE_ACCOUNT = 'firebase-dev.json';
 export const ORIGIN = /http:\/\/localhost:\d+/;
 export const TEMPLE_URL = 'https://temple.universe.xyz/';
