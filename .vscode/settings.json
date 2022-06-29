@@ -5,5 +5,6 @@
   "eslint.validate": ["javascript"],
   "editor.formatOnSave": true,
   "js/ts.implicitProjectConfig.checkJs": true,
-  "cSpell.words": ["Cnstnts", "Extradata", "fstr", "Millis"]
+  "cSpell.words": ["Cnstnts", "Extradata", "fstr", "Millis"],
+  "terminal.integrated.fontFamily": "Meslo LG M for Powerline",
 }

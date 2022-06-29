@@ -5,18 +5,16 @@ import RankingsRequestDto from 'collections/dto/rankings-query.dto';
 import { InvalidCollectionError } from 'common/errors/invalid-collection.error';
 import { FirebaseService } from 'firebase/firebase.service';
 import { StatsService } from 'stats/stats.service';
+import { CounterService } from 'counters/counter.service';
 import { UserFollowingCollection } from 'user/dto/user-following-collection.dto';
 import { UserFollowingCollectionDeletePayload } from './dto/user-following-collection-delete-payload.dto';
 import { UserFollowingCollectionPostPayload } from './dto/user-following-collection-post-payload.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { UserDto } from './dto/user.dto';
-import { getFulfilledPromiseSettledResults } from 'utils/promises';
-
-const AUTH_COLS = 'auth';
 
 @Injectable()
 export class UserService {
-  constructor(private firebaseService: FirebaseService, private statsService: StatsService) {}
+  constructor(private firebaseService: FirebaseService, private statsService: StatsService, private counterSerivce: CounterService) { }
 
   async getUserWatchlist(user: UserDto, query: RankingsRequestDto) {
     const collectionFollows = this.firebaseService.firestore
@@ -48,13 +46,13 @@ export class UserService {
 
   async generateAuth() {
     const token = uuidv4();
-    console.log({ firestore: this.firebaseService.firestore });
+    const userId = await this.counterSerivce.getIncrement(firestoreConstants.USERS_COLL);
+    const docRef = this.firebaseService.firestore.collection(firestoreConstants.USERS_COLL).doc(userId.toString());
 
-    const docRef = this.firebaseService.firestore.collection(AUTH_COLS).doc();
     await docRef.set({
-      users: []
+      userId,
+      token,
     });
-
     return {
       userId: docRef.id,
       token

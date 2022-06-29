@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
+import { CounterService } from 'counters/counter.service';
 import { UserController } from './user.controller';
 import { StatsModule } from 'stats/stats.module';
 import { VotesModule } from 'votes/votes.module';
@@ -9,8 +10,8 @@ import { DiscordModule } from 'discord/discord.module';
 import { TwitterModule } from 'twitter/twitter.module';
 
 @Module({
-  providers: [UserService],
+  providers: [UserService, CounterService],
   imports: [StatsModule, VotesModule, CollectionsModule, StorageModule, DiscordModule, TwitterModule],
   controllers: [UserController]
 })
-export class UserModule {}
+export class UserModule { }

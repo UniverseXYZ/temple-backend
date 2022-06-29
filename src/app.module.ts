@@ -31,7 +31,7 @@ import * as serviceAccount from './creds/firebase-dev.json';
     StatsModule,
     UserModule,
     VotesModule,
-    StorageModule
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService]
