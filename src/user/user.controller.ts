@@ -27,6 +27,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { ApiTag } from 'common/api-tags';
@@ -91,14 +92,35 @@ export class UserController {
     description: "Create new profile",
     tags: [ApiTag.User]
   })
+
   @ApiSignatureAuth()
   @UseGuards(AuthGuard)
   @ApiOkResponse({ description: ResponseDescription.Success, type: UserProfileDto })
   @ApiUnauthorizedResponse({ description: ResponseDescription.Unauthorized })
   @ApiInternalServerErrorResponse({ description: ResponseDescription.InternalServerError })
   @UseInterceptors(new CacheControlInterceptor({ maxAge: 60 * 3 }))
-  async createNewProfile(@Body() payload: UserProfilePostPayloadDto, @Headers('x-auth-signature') userId: string): Promise<UserProfileDto> {
+  async createNewProfile(@Body() payload: UserProfilePostPayloadDto, @Headers() headers: any): Promise<UserProfileDto> {
+    const userId = headers['x-auth-signature'];
     const profile = await this.profileService.createProfile(userId, payload);
+    return profile;
+  }
+
+
+  @Put('/profile/:profileId')
+  @ApiOperation({
+    description: "Update profile",
+    tags: [ApiTag.User]
+  })
+
+  @ApiSignatureAuth()
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({ description: ResponseDescription.Success, type: UserProfileDto })
+  @ApiUnauthorizedResponse({ description: ResponseDescription.Unauthorized })
+  @ApiInternalServerErrorResponse({ description: ResponseDescription.InternalServerError })
+  @UseInterceptors(new CacheControlInterceptor({ maxAge: 60 * 3 }))
+  async updateProfile(@Body() payload: UserProfilePostPayloadDto, @Headers() headers: any, @Query('profileId') profileId: string): Promise<UserProfileDto> {
+    const userId = headers['x-auth-signature'];
+    const profile = await this.profileService.updateProfile(userId, profileId, payload);
     return profile;
   }
 

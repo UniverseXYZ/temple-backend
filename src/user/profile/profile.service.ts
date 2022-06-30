@@ -63,13 +63,19 @@ export class ProfileService {
       profileId
     });
     return { ...payload, profileId: profileId.toString() } as UserProfileDto;
-    // const canClaimUsername = await this.isAvailable(userRef, payload.displayName);
 
-    // if (!canClaimUsername) {
-    //   throw new InvalidProfileError(`display Name ${payload.displayName} is invalid or already taken`);
-    // } else {
+  }
 
-    // }
+  async updateProfile(userId: string, profileId: string, payload: Partial<UserProfileDto>): Promise<UserProfileDto> {
+    const userRef = this.getUserRef(userId);
+
+    await userRef.collection(PROFILE_COLS).doc(profileId.toString()).update({
+      ...payload,
+      profileId
+    });
+
+    const doc = await userRef.collection(PROFILE_COLS).doc(profileId.toString()).get();
+    return doc.data() as UserProfileDto;
   }
 
   // async updateProfile(user: ParsedUserId, updatedProfile: Partial<UserProfileDto> & UpdateUserProfileDto) {
