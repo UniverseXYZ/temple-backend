@@ -7,6 +7,12 @@ import { MAX_BIO_CHARS, MAX_DISPLAY_NAME_CHARS, usernameConstraints } from 'user
 
 export class UserProfileDto {
   @ApiProperty({
+    description: "User's profile Id"
+  })
+  @IsString()
+  profileId: string;
+
+  @ApiProperty({
     description: "User's main wallet address"
   })
   @IsEthereumAddress({

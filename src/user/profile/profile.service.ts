@@ -1,5 +1,6 @@
 import { firestoreConstants } from '@johnkcr/temple-lib/dist/utils';
 import { Injectable } from '@nestjs/common';
+import { CounterService } from 'counters/counter.service';
 import { randomInt } from 'crypto';
 import { FirebaseService } from 'firebase/firebase.service';
 import { DeleteUserProfileImagesDto } from 'user/dto/update-user-profile-images.dto';
@@ -9,9 +10,11 @@ import { InvalidProfileError } from '../errors/invalid-profile.error';
 import { ParsedUserId } from '../user-id.pipe';
 import { MAX_USERNAME_CHARS, MIN_USERNAME_CHARS, usernameCharRegex, usernameRegex } from './profile.constants';
 
+
+const PROFILE_COLS = 'profiles';
 @Injectable()
 export class ProfileService {
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(private firebaseService: FirebaseService, private counterSerivce: CounterService) { }
 
   static isValidUsername(value: string) {
     if (typeof value !== 'string') {
@@ -30,7 +33,7 @@ export class ProfileService {
     const profile = {
       ...currentProfile,
       ...updatedProfile,
-      address: user.userAddress,
+      //  address: user.userAddress,
       createdAt,
       updatedAt
     };
@@ -46,33 +49,56 @@ export class ProfileService {
     await user.ref.set(profile, { merge: true });
   }
 
-  async updateProfile(user: ParsedUserId, updatedProfile: Partial<UserProfileDto> & UpdateUserProfileDto) {
-    const profileSnap = await user.ref.get();
-    const currentProfile = profileSnap.data();
-    const createdAt = currentProfile?.createdAt ?? Date.now();
-    const updatedAt = Date.now();
-
-    const canClaimUsername = await this.canClaimUsername(updatedProfile.username, currentProfile ?? {});
-    if (!canClaimUsername) {
-      throw new InvalidProfileError(`Username ${updatedProfile.username} is invalid or already taken`);
-    }
-
-    const profile = {
-      ...currentProfile,
-      ...updatedProfile,
-      address: user.userAddress,
-      createdAt,
-      updatedAt
-    };
-
-    await user.ref.set(profile, { merge: true });
+  private getUserRef(userId: string) {
+    return this.firebaseService.firestore.collection(firestoreConstants.USERS_COLL).doc(userId);
   }
 
-  async isAvailable(username: string): Promise<boolean> {
-    const normalizedUsername = username.toLowerCase();
-    const usersCollection = this.firebaseService.firestore.collection(firestoreConstants.USERS_COLL);
+  async createProfile(userId: string, payload: Partial<UserProfileDto>): Promise<UserProfileDto> {
+    const userRef = this.getUserRef(userId);
 
-    const snapshot = await usersCollection.where('username', '==', normalizedUsername).get();
+    const profileId = await this.counterSerivce.getIncrement(PROFILE_COLS);
+    await userRef.collection(PROFILE_COLS).doc(profileId.toString()).set({
+      displayName: payload.displayName,
+      address: payload.address,
+      profileId
+    });
+    return { ...payload, profileId: profileId.toString() } as UserProfileDto;
+    // const canClaimUsername = await this.isAvailable(userRef, payload.displayName);
+
+    // if (!canClaimUsername) {
+    //   throw new InvalidProfileError(`display Name ${payload.displayName} is invalid or already taken`);
+    // } else {
+
+    // }
+  }
+
+  // async updateProfile(user: ParsedUserId, updatedProfile: Partial<UserProfileDto> & UpdateUserProfileDto) {
+  //   const profileSnap = await user.ref.get();
+  //   const currentProfile = profileSnap.data();
+  //   const createdAt = currentProfile?.createdAt ?? Date.now();
+  //   const updatedAt = Date.now();
+
+  //   const canClaimUsername = await this.canClaimUsername(updatedProfile.username, currentProfile ?? {});
+  //   if (!canClaimUsername) {
+  //     throw new InvalidProfileError(`Username ${updatedProfile.username} is invalid or already taken`);
+  //   }
+
+  //   const profile = {
+  //     ...currentProfile,
+  //     ...updatedProfile,
+  //     //   address: user.userAddress,
+  //     createdAt,
+  //     updatedAt
+  //   };
+
+  //   await user.ref.set(profile, { merge: true });
+  // }
+
+  async isAvailable(userRef: FirebaseFirestore.DocumentReference, displayName: string): Promise<boolean> {
+    const normalizedUsername = displayName.toLowerCase();
+    const profileCollection = userRef.collection(PROFILE_COLS);
+
+    const snapshot = await profileCollection.where('displayName', '==', normalizedUsername).get();
 
     return snapshot.empty;
   }
@@ -111,13 +137,13 @@ export class ProfileService {
     return username.replace(usernameCharRegex, '');
   }
 
-  private async canClaimUsername(newUsername: string, currentUser: Partial<UserProfileDto>): Promise<boolean> {
-    if (newUsername === currentUser.username) {
-      return true;
-    }
+  // private async canClaimUsername(newUsername: string, currentUser: Partial<UserProfileDto>): Promise<boolean> {
+  //   if (newUsername === currentUser.username) {
+  //     return true;
+  //   }
 
-    const usernameAvailable = await this.isAvailable(newUsername);
+  //   // const usernameAvailable = await this.isAvailable(newUsername);
 
-    return usernameAvailable;
-  }
+  //   //return usernameAvailable;
+  // }
 }

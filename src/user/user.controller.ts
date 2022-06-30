@@ -62,6 +62,7 @@ import { UserFollowingCollectionDeletePayload } from './dto/user-following-colle
 import { v4 as uuidv4 } from 'uuid';
 import { UserProfileDto } from './dto/user-profile.dto';
 import { UserProfilePostPayloadDto } from './dto/user-profile-post-payload.dto';
+import { ProfileService } from './profile/profile.service';
 
 @Controller('user')
 export class UserController {
@@ -69,6 +70,7 @@ export class UserController {
 
   constructor(
     private userService: UserService,
+    private profileService: ProfileService,
     private votesService: VotesService,
     private collectionsService: CollectionsService,
     private storageService: StorageService,
@@ -95,9 +97,9 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: ResponseDescription.Unauthorized })
   @ApiInternalServerErrorResponse({ description: ResponseDescription.InternalServerError })
   @UseInterceptors(new CacheControlInterceptor({ maxAge: 60 * 3 }))
-  createNewProfile(@Body() payload: UserProfilePostPayloadDto): UserProfileDto {
-    const x = new UserProfileDto();
-    return x;
+  async createNewProfile(@Body() payload: UserProfilePostPayloadDto, @Headers('x-auth-signature') userId: string): Promise<UserProfileDto> {
+    const profile = await this.profileService.createProfile(userId, payload);
+    return profile;
   }
 
 

@@ -18,7 +18,7 @@ export class CounterService {
             if (data) {
                 const { counterValue } = data;
                 result = Number(counterValue) + 1;
-                await counterRef.update(counterRef, { counterValue: result });
+                await counterRef.set({ counterValue: result });
             }
         } else {
             const counterValue = result;
