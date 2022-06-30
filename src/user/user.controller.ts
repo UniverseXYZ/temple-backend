@@ -14,7 +14,8 @@ import {
   UseInterceptors,
   HttpStatus,
   Headers,
-  Delete
+  Delete,
+  Param
 } from '@nestjs/common';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { UserDto } from './dto/user.dto';
@@ -27,7 +28,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { ApiTag } from 'common/api-tags';
@@ -106,19 +106,41 @@ export class UserController {
   }
 
 
+  @Post('/profile/:profileId/image')
+  @ApiOperation({
+    description: "Update profile",
+    tags: [ApiTag.User]
+  })
+  @ApiSignatureAuth()
+  @UseInterceptors(new CacheControlInterceptor())
+  @UseInterceptors(FileInterceptor('profileImage'))
+  @UseGuards(AuthGuard)
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @ApiHeader({
+    name: 'Content-Type',
+    required: false
+  })
+  @ApiOkResponse({ description: ResponseDescription.Success, type: UserProfileDto })
+  @ApiUnauthorizedResponse({ description: ResponseDescription.Unauthorized })
+  @ApiInternalServerErrorResponse({ description: ResponseDescription.InternalServerError })
+  @UseInterceptors(new CacheControlInterceptor({ maxAge: 60 * 3 }))
+  uploadImageToProfile(@Headers() headers: any, @UploadedFile() profileImage: Express.Multer.File, @Query('profileId') profileId: string): string {
+    const userId = headers['x-auth-signature'];
+    return "ok";
+  }
+
   @Put('/profile/:profileId')
   @ApiOperation({
     description: "Update profile",
     tags: [ApiTag.User]
   })
-
   @ApiSignatureAuth()
   @UseGuards(AuthGuard)
   @ApiOkResponse({ description: ResponseDescription.Success, type: UserProfileDto })
   @ApiUnauthorizedResponse({ description: ResponseDescription.Unauthorized })
   @ApiInternalServerErrorResponse({ description: ResponseDescription.InternalServerError })
   @UseInterceptors(new CacheControlInterceptor({ maxAge: 60 * 3 }))
-  async updateProfile(@Body() payload: UserProfilePostPayloadDto, @Headers() headers: any, @Query('profileId') profileId: string): Promise<UserProfileDto> {
+  async updateProfile(@Body() payload: UserProfilePostPayloadDto, @Headers() headers: any, @Param('profileId') profileId: string): Promise<UserProfileDto> {
     const userId = headers['x-auth-signature'];
     const profile = await this.profileService.updateProfile(userId, profileId, payload);
     return profile;
