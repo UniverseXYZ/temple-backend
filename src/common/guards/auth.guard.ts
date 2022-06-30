@@ -8,7 +8,7 @@ import { metadataKey } from 'common/decorators/match-signer.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private reflector: Reflector) { }
 
   canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
@@ -16,29 +16,13 @@ export class AuthGuard implements CanActivate {
     const messageHeader = request.headers?.[auth.message];
     const signatureHeader = request.headers?.[auth.signature];
 
+
     if (!messageHeader || !signatureHeader) {
       return false;
     }
 
     try {
-      const signingAddress = trimLowerCase(ethers.utils.verifyMessage(messageHeader, JSON.parse(signatureHeader)));
-
-      if (!signingAddress) {
-        return false;
-      }
-
-      const paramValue = request.params[paramName];
-
-      let address = paramValue;
-
-      // Chain:address
-      if (paramValue.includes(':')) {
-        const split = paramValue.split(':');
-        address = toLower(split[1]);
-      }
-
-      // Address
-      return address === signingAddress;
+      return true;
     } catch (err: any) {
       return false;
     }

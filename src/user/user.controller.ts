@@ -60,6 +60,8 @@ import { UserFollowingCollectionsArrayDto } from 'user/dto/user-following-collec
 import { UserFollowingCollectionPostPayload } from './dto/user-following-collection-post-payload.dto';
 import { UserFollowingCollectionDeletePayload } from './dto/user-following-collection-delete-payload.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { UserProfileDto } from './dto/user-profile.dto';
+import { UserProfilePostPayloadDto } from './dto/user-profile-post-payload.dto';
 
 @Controller('user')
 export class UserController {
@@ -71,7 +73,7 @@ export class UserController {
     private collectionsService: CollectionsService,
     private storageService: StorageService,
     private statsService: StatsService
-  ) {}
+  ) { }
 
   @Post('/auth/generate')
   @ApiOperation({
@@ -81,6 +83,23 @@ export class UserController {
   async generateAuth() {
     return await this.userService.generateAuth();
   }
+
+  @Post('/profile')
+  @ApiOperation({
+    description: "Create new profile",
+    tags: [ApiTag.User]
+  })
+  @ApiSignatureAuth()
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({ description: ResponseDescription.Success, type: UserProfileDto })
+  @ApiUnauthorizedResponse({ description: ResponseDescription.Unauthorized })
+  @ApiInternalServerErrorResponse({ description: ResponseDescription.InternalServerError })
+  @UseInterceptors(new CacheControlInterceptor({ maxAge: 60 * 3 }))
+  createNewProfile(@Body() payload: UserProfilePostPayloadDto): UserProfileDto {
+    const x = new UserProfileDto();
+    return x;
+  }
+
 
   @Get(':userId/watchlist')
   @ApiOperation({
